@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madhura Sambrey — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board-0:#0A1712;
+    --board-1:#0F231B;
+    --board-2:#14301F;
+    --copper:#C9995C;
+    --copper-bright:#E8B978;
+    --signal:#54D6C4;
+    --signal-dim:#2C6E64;
+    --paper:#EDEBDF;
+    --paper-dim:#A9B8AE;
+    --line:#264537;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+  body{
+    background:var(--board-0);
+    color:var(--paper);
+    font-family:var(--font-body);
+    line-height:1.6;
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(84,214,196,0.05), transparent 40%),
+      radial-gradient(circle at 85% 60%, rgba(201,153,92,0.05), transparent 45%);
+  }
+
+  /* faint pcb grid texture */
+  .pcb-grid{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.18;
+  }
+
+  a{color:inherit; text-decoration:none;}
+
+  ::selection{background:var(--signal); color:var(--board-0);}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 6vw;
+    backdrop-filter:blur(10px);
+    background:rgba(10,23,18,0.72);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-mark{
+    font-family:var(--font-mono);
+    font-size:13px; letter-spacing:0.12em;
+    color:var(--copper-bright);
+    display:flex; align-items:center; gap:8px;
+  }
+  .nav-mark .dot{width:7px;height:7px;border-radius:50%;background:var(--signal); box-shadow:0 0 8px var(--signal);}
+  .nav-links{display:flex; gap:32px; font-family:var(--font-mono); font-size:12.5px; letter-spacing:0.08em;}
+  .nav-links a{color:var(--paper-dim); position:relative; padding-bottom:4px; transition:color .25s ease;}
+  .nav-links a:hover{color:var(--signal);}
+  .nav-links a::before{content:'· ';color:var(--copper);}
+  .nav-toggle{display:none;}
+
+  @media(max-width:760px){
+    .nav-links{display:none;}
+  }
+
+  /* ---------- TRACE (signature element) ---------- */
+  .trace-rail{
+    position:absolute; left:38px; top:0; bottom:0; width:2px;
+    z-index:1;
+  }
+  .trace-rail svg{position:sticky; top:0; height:100vh; width:100%;}
+  .trace-path{
+    fill:none; stroke:var(--line); stroke-width:2;
+  }
+  .trace-path-progress{
+    fill:none; stroke:var(--signal); stroke-width:2;
+    stroke-dasharray:1 1;
+    filter:drop-shadow(0 0 4px rgba(84,214,196,0.7));
+  }
+  @media(max-width:900px){ .trace-rail{display:none;} }
+
+  section{
+    position:relative; z-index:2;
+    padding:120px 6vw 100px 12vw;
+    max-width:1200px;
+  }
+  @media(max-width:900px){ section{padding:90px 7vw 70px;} }
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.18em;
+    color:var(--copper); text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:''; width:22px; height:1px; background:var(--copper);
+  }
+  .node{
+    position:absolute; left:-18px; top:130px;
+    width:14px; height:14px; border-radius:50%;
+    background:var(--board-1); border:2px solid var(--copper);
+  }
+  .node::after{
+    content:''; position:absolute; inset:3px; border-radius:50%; background:var(--signal);
+    box-shadow:0 0 10px var(--signal);
+  }
+  @media(max-width:900px){ .node{display:none;} }
+
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; letter-spacing:-0.01em;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding-top:140px;
+  }
+  .hero-kicker{
+    font-family:var(--font-mono); font-size:13px; color:var(--signal);
+    letter-spacing:0.15em; margin-bottom:22px; display:flex; align-items:center; gap:10px;
+  }
+  .hero-kicker .blink{width:8px;height:8px;background:var(--signal); border-radius:50%; animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+
+  h1.hero-title{
+    font-size:clamp(2.6rem, 6.5vw, 5.4rem);
+    line-height:0.98;
+    color:var(--paper);
+    margin-bottom:24px;
+  }
+  h1.hero-title span{color:var(--copper-bright);}
+  .hero-sub{
+    font-size:clamp(1rem, 1.6vw, 1.25rem);
+    color:var(--paper-dim);
+    max-width:640px;
+    margin-bottom:40px;
+    font-weight:400;
+  }
+  .hero-actions{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:56px;}
+  .btn{
+    font-family:var(--font-mono); font-size:13px; letter-spacing:0.05em;
+    padding:14px 26px; border-radius:2px; cursor:pointer;
+    transition:all .25s ease; display:inline-flex; align-items:center; gap:10px;
+  }
+  .btn-solid{background:var(--copper-bright); color:var(--board-0); border:1px solid var(--copper-bright); font-weight:600;}
+  .btn-solid:hover{background:var(--signal); border-color:var(--signal); transform:translateY(-2px);}
+  .btn-outline{border:1px solid var(--line); color:var(--paper);}
+  .btn-outline:hover{border-color:var(--signal); color:var(--signal); transform:translateY(-2px);}
+
+  .hero-contacts{
+    display:flex; gap:28px; flex-wrap:wrap;
+    font-family:var(--font-mono); font-size:12.5px; color:var(--paper-dim);
+  }
+  .hero-contacts a{display:flex; align-items:center; gap:8px; transition:color .2s ease;}
+  .hero-contacts a:hover{color:var(--signal-bright, var(--signal));}
+  .hero-contacts svg{width:15px;height:15px; stroke:var(--copper);}
+
+  /* ---------- SECTION LABELS ---------- */
+  .sec-title{font-size:clamp(1.8rem,3.4vw,2.6rem); color:var(--paper); margin-bottom:8px;}
+  .sec-desc{color:var(--paper-dim); max-width:620px; margin-bottom:52px; font-size:1rem;}
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px;}
+  @media(max-width:800px){.about-grid{grid-template-columns:1fr;}}
+  .about-text p{color:var(--paper-dim); margin-bottom:18px; font-size:1.02rem;}
+  .about-text strong{color:var(--paper); font-weight:600;}
+
+  .timeline{border-left:1px solid var(--line); padding-left:28px;}
+  .tl-item{position:relative; margin-bottom:34px;}
+  .tl-item:last-child{margin-bottom:0;}
+  .tl-item::before{
+    content:''; position:absolute; left:-33px; top:5px;
+    width:9px; height:9px; border-radius:50%; background:var(--copper);
+  }
+  .tl-years{font-family:var(--font-mono); font-size:11.5px; color:var(--signal); letter-spacing:0.06em; margin-bottom:6px;}
+  .tl-school{font-family:var(--font-display); font-size:1.08rem; color:var(--paper); margin-bottom:4px;}
+  .tl-detail{font-size:0.92rem; color:var(--paper-dim);}
+
+  /* ---------- EXPERIENCE ---------- */
+  .exp-card{
+    border:1px solid var(--line); border-radius:4px; padding:38px 40px;
+    background:linear-gradient(180deg, rgba(20,48,31,0.5), rgba(15,35,27,0.3));
+    position:relative; overflow:hidden;
+  }
+  .exp-card::before{
+    content:''; position:absolute; top:0; left:0; width:3px; height:100%;
+    background:linear-gradient(180deg, var(--copper), var(--signal));
+  }
+  .exp-head{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:22px;}
+  .exp-role{font-family:var(--font-display); font-size:1.35rem; color:var(--paper);}
+  .exp-org{color:var(--copper-bright); font-size:0.98rem; margin-top:4px;}
+  .exp-time{font-family:var(--font-mono); font-size:12px; color:var(--paper-dim); border:1px solid var(--line); padding:6px 12px; border-radius:20px; white-space:nowrap;}
+  .exp-list{list-style:none;}
+  .exp-list li{
+    position:relative; padding-left:22px; margin-bottom:12px; color:var(--paper-dim); font-size:0.98rem;
+  }
+  .exp-list li::before{
+    content:'▸'; position:absolute; left:0; color:var(--signal);
+  }
+
+  /* ---------- PROJECTS ---------- */
+  .proj-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:26px;}
+  @media(max-width:1000px){.proj-grid{grid-template-columns:1fr;}}
+  .proj-card{
+    border:1px solid var(--line); border-radius:4px; padding:32px 28px;
+    background:var(--board-1);
+    transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    display:flex; flex-direction:column; height:100%;
+  }
+  .proj-card:hover{
+    transform:translateY(-6px); border-color:var(--signal-dim);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+  }
+  .proj-tag{font-family:var(--font-mono); font-size:11px; color:var(--copper); letter-spacing:0.1em; margin-bottom:16px;}
+  .proj-title{font-family:var(--font-display); font-size:1.2rem; color:var(--paper); margin-bottom:14px; line-height:1.3;}
+  .proj-desc{color:var(--paper-dim); font-size:0.92rem; flex-grow:1;}
+  .proj-desc li{list-style:none; position:relative; padding-left:16px; margin-bottom:10px;}
+  .proj-desc li::before{content:'—'; position:absolute; left:0; color:var(--signal-dim);}
+
+  /* ---------- SKILLS ---------- */
+  .skills-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .skill-block{background:var(--board-0); padding:30px 28px;}
+  .skill-cat{font-family:var(--font-mono); font-size:11.5px; color:var(--signal); letter-spacing:0.1em; margin-bottom:16px; text-transform:uppercase;}
+  .skill-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-family:var(--font-mono); font-size:12px; color:var(--paper);
+    border:1px solid var(--line); padding:6px 12px; border-radius:2px;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .chip:hover{border-color:var(--copper); color:var(--copper-bright);}
+
+  /* ---------- CONTACT ---------- */
+  .contact-wrap{
+    border:1px solid var(--line); border-radius:6px; padding:60px 6vw;
+    text-align:center; background:radial-gradient(circle at 50% 0%, rgba(84,214,196,0.06), transparent 60%);
+  }
+  .contact-title{font-size:clamp(2rem,4.5vw,3.2rem); color:var(--paper); margin-bottom:18px;}
+  .contact-sub{color:var(--paper-dim); max-width:520px; margin:0 auto 40px; font-size:1.02rem;}
+  .contact-links{display:flex; justify-content:center; gap:18px; flex-wrap:wrap;}
+  .contact-pill{
+    font-family:var(--font-mono); font-size:13px; padding:14px 24px; border:1px solid var(--line);
+    border-radius:30px; display:inline-flex; align-items:center; gap:10px; color:var(--paper);
+    transition:all .25s ease;
+  }
+  .contact-pill:hover{border-color:var(--signal); color:var(--signal); transform:translateY(-2px);}
+  .contact-pill svg{width:15px; height:15px; stroke:var(--copper);}
+
+  footer{
+    text-align:center; padding:40px 6vw 60px; font-family:var(--font-mono);
+    font-size:11.5px; color:var(--paper-dim); position:relative; z-index:2;
+  }
+
+  /* reveal on scroll */
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--board-0);}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:5px;}
+</style>
+</head>
+<body>
+
+<div class="pcb-grid"></div>
+
+<nav>
+  <div class="nav-mark"><span class="dot"></span>MADHURA.SAMBREY</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="trace-rail">
+  <svg viewBox="0 0 4 100" preserveAspectRatio="none">
+    <line class="trace-path" x1="2" y1="0" x2="2" y2="100" vector-effect="non-scaling-stroke"/>
+    <line id="traceProgress" class="trace-path-progress" x1="2" y1="0" x2="2" y2="0" vector-effect="non-scaling-stroke"/>
+  </svg>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-kicker"><span class="blink"></span>AVAILABLE FOR ENTRY-LEVEL ROLES</div>
+  <h1 class="hero-title">Madhura<br>Sambrey<span>.</span></h1>
+  <p class="hero-sub">Final-year Electronics &amp; Telecommunication undergraduate building at the intersection of embedded systems, data, and software — turning circuits and code into working prototypes.</p>
+  <div class="hero-actions">
+    <a href="#projects" class="btn btn-solid">View Projects →</a>
+    <a href="#contact" class="btn btn-outline">Get in Touch</a>
+  </div>
+  <div class="hero-contacts">
+    <a href="tel:+918983703788">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      +91 8983703788
+    </a>
+    <a href="mailto:sambreymadhura@gmail.com">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" stroke="none"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+      sambreymadhura@gmail.com
+    </a>
+    <a href="https://linkedin.com/in/madhura-sambrey-611b29293" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+    <a href="https://github.com/your-username" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="reveal">
+  <div class="node"></div>
+  <div class="eyebrow">01 · About</div>
+  <h2 class="sec-title">Grounded in circuits,<br>curious about data.</h2>
+  <div class="about-grid" style="margin-top:48px;">
+    <div class="about-text">
+      <p>I'm a <strong>final-year B.Tech student in Electronics &amp; Telecommunication</strong> at Yeshwantrao Chavan College of Engineering, Nagpur, with hands-on exposure to embedded electronics, applied research, and software fundamentals through academic and internship work.</p>
+      <p>I'm now looking to bring that foundation — problem-solving, technical documentation, and analytical thinking — into an <strong>entry-level Data Analysis or Software Development role</strong>, where I can keep building things that measure, move, and make sense of the real world.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-years">2023 — 2027</div>
+        <div class="tl-school">Yeshwantrao Chavan College of Engineering, Nagpur</div>
+        <div class="tl-detail">B.Tech, Electronics &amp; Telecommunication · CGPA 7.81</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-years">2021 — 2023</div>
+        <div class="tl-school">Decent Junior College, Nagpur</div>
+        <div class="tl-detail">Maharashtra Board of Higher Secondary Education · 65%</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-years">2020 — 2021</div>
+        <div class="tl-school">Sunflag School, Bhandara (CBSE)</div>
+        <div class="tl-detail">Central Board of Secondary Education · 94%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="reveal">
+  <div class="node"></div>
+  <div class="eyebrow">02 · Experience</div>
+  <h2 class="sec-title">Where I've worked</h2>
+  <p class="sec-desc">Applied research at the intersection of IoT and civic infrastructure.</p>
+  <div class="exp-card">
+    <div class="exp-head">
+      <div>
+        <div class="exp-role">Intern</div>
+        <div class="exp-org">Maharashtra Remote Sensing Applications Centre (MRSAC)</div>
+      </div>
+      <div class="exp-time">JUN 2025 — JUL 2025</div>
+    </div>
+    <ul class="exp-list">
+      <li>Worked on Smart Traffic Control in Nagpur City using IoT and GIS-based technologies.</li>
+      <li>Studied traffic congestion at major junctions and identified peak traffic hours.</li>
+      <li>Conducted traffic route analysis and accident-prone area identification; contributed to project reports, presentations, and technical documentation.</li>
+      <li>Collaborated with a team to propose solutions for reducing traffic congestion and fuel wastage in Nagpur city, strengthening data analysis, communication, and teamwork skills.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="reveal">
+  <div class="node"></div>
+  <div class="eyebrow">03 · Projects</div>
+  <h2 class="sec-title">Things I've built</h2>
+  <p class="sec-desc">From ocean-powered circuits to object-oriented code.</p>
+  <div class="proj-grid">
+    <div class="proj-card">
+      <div class="proj-tag">HARDWARE · IoT</div>
+      <div class="proj-title">Wave Energy Converter for Coastal Power Generation</div>
+      <ul class="proj-desc">
+        <li>Designed a compact WEC to harness ocean wave energy and convert it into usable electrical power.</li>
+        <li>Implemented a rack-and-pinion mechanism to convert vertical buoy motion into rotational motion.</li>
+        <li>Integrated a stepper motor, rectifier, voltage booster, and regulator circuits for stabilization.</li>
+        <li>Built an ESP8266-based IoT monitoring system with cloud data transmission, BMS, and charge controller.</li>
+      </ul>
+    </div>
+    <div class="proj-card">
+      <div class="proj-tag">C++ · OOP</div>
+      <div class="proj-title">Fitness Calculator</div>
+      <ul class="proj-desc">
+        <li>Developed a BMI calculator using encapsulation, inheritance, and abstraction.</li>
+        <li>Built a console app classifying users by WHO BMI standards.</li>
+        <li>Wrote modular, reusable class-based code, scalable for future health-monitoring features.</li>
+      </ul>
+    </div>
+    <div class="proj-card">
+      <div class="proj-tag">C · PYTHON · SDLC</div>
+      <div class="proj-title">Academic &amp; Software Engineering Projects</div>
+      <ul class="proj-desc">
+        <li>Built C and Python programs applying core programming and problem-solving concepts.</li>
+        <li>Used Trello for task tracking and Pytest for testing in IDE-based coursework.</li>
+        <li>Performed Critical Path Analysis using Gantt, PERT, and CPM charts in MS Excel.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="reveal">
+  <div class="node"></div>
+  <div class="eyebrow">04 · Skills</div>
+  <h2 class="sec-title">Toolkit</h2>
+  <p class="sec-desc">What I reach for when building, analyzing, and documenting.</p>
+  <div class="skills-grid">
+    <div class="skill-block">
+      <div class="skill-cat">Languages</div>
+      <div class="skill-chips">
+        <span class="chip">C++</span><span class="chip">C</span><span class="chip">Python</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-cat">Databases</div>
+      <div class="skill-chips">
+        <span class="chip">MySQL</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-cat">Concepts</div>
+      <div class="skill-chips">
+        <span class="chip">Agile</span><span class="chip">SDLC</span><span class="chip">OOP</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-cat">Tools</div>
+      <div class="skill-chips">
+        <span class="chip">MS Word</span><span class="chip">MS PowerPoint</span><span class="chip">MS Excel</span>
+        <span class="chip">Trello</span><span class="chip">VS Code</span><span class="chip">Canva</span><span class="chip">Pytest</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-cat">Other</div>
+      <div class="skill-chips">
+        <span class="chip">Report &amp; Presentation Design (AI-assisted)</span><span class="chip">Research Paper Writing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="reveal">
+  <div class="node"></div>
+  <div class="contact-wrap">
+    <div class="eyebrow" style="justify-content:center;">05 · Contact</div>
+    <h2 class="contact-title">Let's connect the circuit.</h2>
+    <p class="contact-sub">Open to entry-level opportunities in Data Analysis and Software Development. Reach out — I reply fast.</p>
+    <div class="contact-links">
+      <a class="contact-pill" href="mailto:sambreymadhura@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+        sambreymadhura@gmail.com
+      </a>
+      <a class="contact-pill" href="tel:+918983703788">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        +91 8983703788
+      </a>
+      <a class="contact-pill" href="https://linkedin.com/in/madhura-sambrey-611b29293" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/></svg>
+        LinkedIn
+      </a>
+      <a class="contact-pill" href="https://github.com/your-username" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Madhura Sambrey — Built with intent, one trace at a time.</footer>
+
+<script>
+  // scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:0.12});
+  reveals.forEach(r=>io.observe(r));
+
+  // trace progress line follows scroll
+  const progress = document.getElementById('traceProgress');
+  function updateTrace(){
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+    progress.setAttribute('y2', (pct*100).toFixed(2));
+  }
+  window.addEventListener('scroll', updateTrace, {passive:true});
+  updateTrace();
+</script>
+
+</body>
+</html>
